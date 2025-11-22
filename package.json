@@ -2,22 +2,28 @@
   "name": "create-net",
   "version": "1.0.0",
   "description": "Create .NET and other projects from NetCoreTemplates GitHub repositories",
-  "main": "index.js",
   "bin": {
     "create-net": "./bin/create-net.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./test.sh"
   },
   "keywords": [
     "create",
     "template",
     "project",
     "NetCoreTemplates",
-    "scaffold"
+    "scaffold",
+    "cli",
+    "generator"
   ],
-  "author": "",
+  "author": "ServiceStack",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ServiceStack/create-net"
+  },
+  "private": false,
   "dependencies": {
     "adm-zip": "^0.5.10"
   },

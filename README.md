@@ -88,11 +88,40 @@ This creates test projects in `test-manual/` for manual verification. Clean up w
 
 ## Publishing
 
-To publish this package to npm:
+### Automated Publishing (Recommended)
+
+The package is automatically published to npm with provenance when a new GitHub release is created:
+
+1. Update the version:
+   ```bash
+   npm version patch  # for bug fixes (1.0.0 → 1.0.1)
+   npm version minor  # for new features (1.0.0 → 1.1.0)
+   npm version major  # for breaking changes (1.0.0 → 2.0.0)
+   ```
+
+2. Push changes and tags:
+   ```bash
+   git push && git push --tags
+   ```
+
+3. Create a GitHub release at https://github.com/ServiceStack/create-net/releases/new
+   - The GitHub Action will automatically run tests and publish to npm with provenance
+
+**Security Features:**
+- Uses OIDC authentication for secure publishing
+- Generates provenance attestations for supply chain security
+- Published with `--access public` flag
+
+### Manual Publishing
+
+To publish manually:
 
 ```bash
-npm publish
+npm login
+npm publish --access public
 ```
+
+**Note:** You need to configure the `NPM_TOKEN` secret in GitHub repository settings for automated publishing. See [`.github/workflows/README.md`](.github/workflows/README.md) for details.
 
 ## License
 
