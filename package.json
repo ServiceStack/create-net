@@ -1,6 +1,6 @@
 {
   "name": "create-net",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Create .NET and other projects from NetCoreTemplates GitHub repositories",
   "bin": {
     "create-net": "./bin/create-net.js"
