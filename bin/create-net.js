@@ -10,15 +10,28 @@ const AdmZip = require('adm-zip');
 const args = process.argv.slice(2);
 
 if (args.length < 1) {
-  console.error('Usage: npx create-net <repo> [ProjectName]');
+  console.error('Usage: npx create-net <repo|ls> [ProjectName]');
+  console.error('');
+  console.error('Commands:');
+  console.error('  ls [org]            List available project templates');
+  console.error('  <repo> [name]       Create a project from a template');
   console.error('');
   console.error('If ProjectName is not specified, uses current directory name and extracts into current directory.');
   console.error('');
   console.error('Examples:');
+  console.error('  npx create-net ls');
+  console.error('  npx create-net ls NetFrameworkTemplates');
   console.error('  npx create-net nextjs MyProject');
   console.error('  npx create-net NetFrameworkTemplates/web-netfx MyProject');
   console.error('  npx create-net nextjs  (uses current directory name)');
   process.exit(1);
+}
+
+// Handle ls command to list available templates
+if (args[0] === 'ls' || args[0] === 'list') {
+  const targetOrg = args[1]; // Optional organization/user name
+  listTemplates(targetOrg);
+  return;
 }
 
 const repo = args[0];
@@ -67,6 +80,98 @@ if (extractToCurrentDir) {
   if (currentDirContents.length > 0) {
     console.error(`Error: Current directory is not empty. Please run this command in an empty directory.`);
     console.error(`Found: ${currentDirContents.join(', ')}`);
+    process.exit(1);
+  }
+}
+
+// Function to fetch JSON from GitHub API
+function fetchJSON(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, {
+      headers: {
+        'User-Agent': 'create-net'
+      }
+    }, (response) => {
+      let data = '';
+
+      // Handle redirects
+      if (response.statusCode === 301 || response.statusCode === 302) {
+        return fetchJSON(response.headers.location).then(resolve).catch(reject);
+      }
+
+      if (response.statusCode !== 200) {
+        return reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+      }
+
+      response.on('data', chunk => data += chunk);
+      response.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }).on('error', reject);
+  });
+}
+
+// Function to list available templates
+async function listTemplates(targetOrg) {
+  console.log('Fetching available project templates...\n');
+
+  let organizations;
+
+  if (targetOrg) {
+    // List templates from specific organization
+    organizations = [{ name: targetOrg, title: `${targetOrg} Templates` }];
+  } else {
+    // List templates from default organizations
+    organizations = [
+      { name: 'NetCoreTemplates', title: '.NET Core Templates' },
+      { name: 'NetFrameworkTemplates', title: '.NET Framework Templates' }
+    ];
+  }
+
+  try {
+    for (const org of organizations) {
+      console.log(`\x1b[1m${org.title}\x1b[0m`);
+      console.log('─'.repeat(80));
+
+      try {
+        const repos = await fetchJSON(`https://api.github.com/orgs/${org.name}/repos?per_page=100&sort=updated`);
+
+        if (!repos || repos.length === 0) {
+          console.log('  No templates found');
+        } else {
+          // Find the longest repo name for padding
+          const maxNameLength = Math.max(...repos.map(r => r.name.length));
+          const padding = Math.max(maxNameLength + 2, 25);
+
+          repos.forEach(repo => {
+            const name = repo.name.padEnd(padding);
+            const description = repo.description || 'No description available';
+            console.log(`  ${name}  ${description}`);
+          });
+        }
+      } catch (err) {
+        console.log(`  Error fetching templates: ${err.message}`);
+      }
+
+      console.log('');
+    }
+
+    console.log('\x1b[1mUsage:\x1b[0m');
+    console.log('  npx create-net <repo> [ProjectName]');
+    console.log('  npx create-net <org>/<repo> [ProjectName]');
+    console.log('  npx create-net ls [org]');
+    console.log('\n\x1b[1mExamples:\x1b[0m');
+    console.log('  npx create-net ls                                    # List all templates');
+    console.log('  npx create-net ls NetFrameworkTemplates              # List specific org templates');
+    console.log('  npx create-net nextjs MyProject                      # Create from NetCoreTemplates');
+    console.log('  npx create-net NetFrameworkTemplates/web-netfx MyApp # Create from specific org');
+
+  } catch (err) {
+    console.error('Error listing templates:', err.message);
     process.exit(1);
   }
 }
