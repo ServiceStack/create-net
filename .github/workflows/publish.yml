@@ -8,6 +8,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write  # Required for OIDC authentication
+      contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,7 +28,7 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Publish to npm
-        run: npm publish
+      - name: Publish to npm with provenance
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

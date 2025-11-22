@@ -20,7 +20,12 @@ Runs automatically when a new GitHub release is created.
 **What it does:**
 - Installs dependencies
 - Runs tests to ensure quality
-- Publishes the package to npm
+- Publishes the package to npm with provenance using OIDC authentication
+
+**Features:**
+- Uses OpenID Connect (OIDC) for secure authentication
+- Publishes with `--provenance` flag for supply chain security
+- Automatically makes the package public with `--access public`
 
 ## Publishing to npm
 
@@ -48,21 +53,38 @@ To publish a new version:
    - Run tests
    - Publish to npm if tests pass
 
-## Required Secrets
+## Required Setup
 
-For the publish workflow to work, you need to add an `NPM_TOKEN` secret to your GitHub repository:
+### NPM Authentication
 
-1. Generate an npm token:
+The workflow uses OIDC (OpenID Connect) authentication with provenance for enhanced security. You still need to configure an `NPM_TOKEN` secret:
+
+1. Generate an npm Automation token:
    - Log in to https://www.npmjs.com
    - Go to Account Settings → Access Tokens
-   - Generate a new "Automation" token
+   - Click "Generate New Token" → Choose "Automation"
+   - Copy the generated token
 
 2. Add the token to GitHub:
    - Go to repository Settings → Secrets and variables → Actions
    - Click "New repository secret"
    - Name: `NPM_TOKEN`
-   - Value: Your npm token
+   - Value: Your npm automation token
    - Click "Add secret"
+
+### OIDC Permissions
+
+The workflow includes the required permissions:
+```yaml
+permissions:
+  id-token: write  # Required for OIDC authentication
+  contents: read
+```
+
+These permissions allow the workflow to:
+- Authenticate with npm using OIDC
+- Generate provenance attestations for supply chain security
+- Read repository contents for publishing
 
 ## Manual Publishing
 
@@ -70,5 +92,13 @@ If you prefer to publish manually:
 
 ```bash
 npm login
-npm publish
+npm publish --access public
 ```
+
+To publish with provenance locally (requires npm 9.5.0+):
+
+```bash
+npm publish --provenance --access public
+```
+
+**Note:** Provenance generation may not work from all environments. GitHub Actions is the recommended way to publish with provenance.
