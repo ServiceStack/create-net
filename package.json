@@ -1,12 +1,16 @@
 {
   "name": "create-net",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Create .NET and other projects from NetCoreTemplates GitHub repositories",
   "bin": {
     "create-net": "./bin/create-net.js"
   },
   "scripts": {
-    "test": "./test.sh"
+    "test": "./test.sh",
+    "bump": "npm version patch && git push origin main --follow-tags",
+    "bump:minor": "npm version minor && git push origin main --follow-tags",
+    "bump:major": "npm version major && git push origin main --follow-tags",
+    "release": "gh release create v$(node -p \"require('./package.json').version\") --title v$(node -p \"require('./package.json').version\") --generate-notes"
   },
   "keywords": [
     "create",
