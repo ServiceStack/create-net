@@ -412,6 +412,8 @@ async function main() {
       console.log(`  npm start (or appropriate command for your template)`);
     }
 
+    process.exit(0);
+
   } catch (err) {
     console.error('Error creating project:', err.message);
 
