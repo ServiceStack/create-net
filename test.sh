@@ -38,14 +38,14 @@ check_project() {
   # Check if directory exists
   if [ ! -d "$project_path" ]; then
     echo -e "${RED}✗ FAILED: Directory $project_path does not exist${NC}"
-    ((TESTS_FAILED++))
+    ((TESTS_FAILED++)) || true
     return 1
   fi
 
   # Check if files were extracted
   if [ -z "$(ls -A $project_path)" ]; then
     echo -e "${RED}✗ FAILED: Directory $project_path is empty${NC}"
-    ((TESTS_FAILED++))
+    ((TESTS_FAILED++)) || true
     return 1
   fi
 
@@ -64,7 +64,7 @@ check_project() {
   fi
 
   echo -e "${GREEN}✓ PASSED: Project $project_name created successfully${NC}"
-  ((TESTS_PASSED++))
+  ((TESTS_PASSED++)) || true
   return 0
 }
 
@@ -106,10 +106,10 @@ echo -e "${YELLOW}========================================${NC}\n"
 
 if node "$CREATE_NET_SCRIPT" nextjs AcmeCorp 2>&1 | grep -q "already exists"; then
   echo -e "${GREEN}✓ PASSED: Correctly detected existing directory${NC}"
-  ((TESTS_PASSED++))
+  ((TESTS_PASSED++)) || true
 else
   echo -e "${RED}✗ FAILED: Should have detected existing directory${NC}"
-  ((TESTS_FAILED++))
+  ((TESTS_FAILED++)) || true
 fi
 
 # Test 5: Error case - Non-empty current directory
@@ -123,10 +123,10 @@ cd NonEmptyTest
 touch file.txt
 if node "$CREATE_NET_SCRIPT" nextjs 2>&1 | grep -q "not empty"; then
   echo -e "${GREEN}✓ PASSED: Correctly detected non-empty directory${NC}"
-  ((TESTS_PASSED++))
+  ((TESTS_PASSED++)) || true
 else
   echo -e "${RED}✗ FAILED: Should have detected non-empty directory${NC}"
-  ((TESTS_FAILED++))
+  ((TESTS_FAILED++)) || true
 fi
 cd ..
 
