@@ -9,14 +9,28 @@ const AdmZip = require('adm-zip');
 // Parse command line arguments
 const args = process.argv.slice(2);
 
-if (args.length < 2) {
-  console.error('Usage: npx create-net <repo> <ProjectName>');
-  console.error('Example: npx create-net nextjs MyProject');
-  console.error('Example: npx create-net NetFrameworkTemplates/web-netfx MyProject');
+if (args.length < 1) {
+  console.error('Usage: npx create-net <repo> [ProjectName]');
+  console.error('');
+  console.error('If ProjectName is not specified, uses current directory name and extracts into current directory.');
+  console.error('');
+  console.error('Examples:');
+  console.error('  npx create-net nextjs MyProject');
+  console.error('  npx create-net NetFrameworkTemplates/web-netfx MyProject');
+  console.error('  npx create-net nextjs  (uses current directory name)');
   process.exit(1);
 }
 
-const [repo, projectName] = args;
+const repo = args[0];
+let projectName = args[1];
+let extractToCurrentDir = false;
+
+// If no project name specified, use current directory name
+if (!projectName) {
+  projectName = path.basename(process.cwd());
+  extractToCurrentDir = true;
+  console.log(`No project name specified, using current directory name: "${projectName}"`);
+}
 
 // Determine organization and repository
 let organization = 'NetCoreTemplates';
@@ -31,15 +45,30 @@ if (repo.includes('/')) {
 // Construct GitHub archive URL
 const archiveUrl = `https://github.com/${organization}/${repository}/archive/refs/heads/main.zip`;
 const tempZipPath = path.join(process.cwd(), 'temp-download.zip');
-const projectPath = path.join(process.cwd(), projectName);
+const projectPath = extractToCurrentDir ? process.cwd() : path.join(process.cwd(), projectName);
 
 console.log(`Creating project "${projectName}" from ${organization}/${repository}...`);
 console.log(`Downloading from: ${archiveUrl}`);
 
-// Check if project directory already exists
-if (fs.existsSync(projectPath)) {
+// Check if project directory already exists (only when creating a new directory)
+if (!extractToCurrentDir && fs.existsSync(projectPath)) {
   console.error(`Error: Directory "${projectName}" already exists.`);
   process.exit(1);
+}
+
+// Check if current directory is not empty (when extracting to current dir)
+if (extractToCurrentDir) {
+  const currentDirContents = fs.readdirSync(process.cwd()).filter(item =>
+    item !== 'node_modules' &&
+    item !== '.git' &&
+    !item.startsWith('.')
+  );
+
+  if (currentDirContents.length > 0) {
+    console.error(`Error: Current directory is not empty. Please run this command in an empty directory.`);
+    console.error(`Found: ${currentDirContents.join(', ')}`);
+    process.exit(1);
+  }
 }
 
 // Function to download file from URL
@@ -220,12 +249,23 @@ async function main() {
     const tempExtractPath = path.join(process.cwd(), 'temp-extract');
     zip.extractAllTo(tempExtractPath, true);
 
-    // Move the extracted folder to the project name
     const extractedPath = path.join(tempExtractPath, rootFolder);
-    fs.renameSync(extractedPath, projectPath);
+
+    if (extractToCurrentDir) {
+      // Move contents of extracted folder to current directory
+      const items = fs.readdirSync(extractedPath);
+      for (const item of items) {
+        const srcPath = path.join(extractedPath, item);
+        const destPath = path.join(projectPath, item);
+        fs.renameSync(srcPath, destPath);
+      }
+    } else {
+      // Move the extracted folder to the project name
+      fs.renameSync(extractedPath, projectPath);
+    }
 
     // Clean up temp extract directory
-    fs.rmdirSync(tempExtractPath, { recursive: true });
+    fs.rmSync(tempExtractPath, { recursive: true, force: true });
 
     // Clean up temp zip file
     fs.unlinkSync(tempZipPath);
@@ -258,9 +298,15 @@ async function main() {
     runNpmInstall(projectPath);
 
     console.log('\n✓ Project created successfully!');
-    console.log(`\nNext steps:`);
-    console.log(`  cd ${projectName}`);
-    console.log(`  npm start (or appropriate command for your template)`);
+
+    if (!extractToCurrentDir) {
+      console.log(`\nNext steps:`);
+      console.log(`  cd ${projectName}`);
+      console.log(`  npm start (or appropriate command for your template)`);
+    } else {
+      console.log(`\nNext steps:`);
+      console.log(`  npm start (or appropriate command for your template)`);
+    }
 
   } catch (err) {
     console.error('Error creating project:', err.message);

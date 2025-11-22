@@ -5,18 +5,30 @@ Create .NET and other projects from NetCoreTemplates GitHub repositories.
 ## Usage
 
 ```bash
-npx create-net <repo> <ProjectName>
+npx create-net <repo> [ProjectName]
 ```
+
+If `ProjectName` is not specified, the script will use the current directory name and extract the template into the current directory (which must be empty).
 
 ### Examples
 
-**Create a project from NetCoreTemplates organization:**
+**Create a project in a new directory:**
 
 ```bash
 npx create-net nextjs MyProject
 ```
 
-This downloads from: `https://github.com/NetCoreTemplates/nextjs`
+This downloads from: `https://github.com/NetCoreTemplates/nextjs` and creates a `MyProject` folder.
+
+**Create a project in the current directory:**
+
+```bash
+mkdir my-project
+cd my-project
+npx create-net nextjs
+```
+
+This uses the current directory name (`my-project`) and extracts the template into the current directory.
 
 **Create a project from a different organization:**
 
@@ -29,8 +41,8 @@ This downloads from: `https://github.com/NetFrameworkTemplates/web-netfx`
 ## What it does
 
 1. **Downloads** the GitHub repository archive from the specified repository
-2. **Extracts** the archive into a folder named `<ProjectName>`
-3. **Replaces** all variations of `MyApp` with variations of your `<ProjectName>`:
+2. **Extracts** the archive into a folder named `<ProjectName>` (or current directory if no ProjectName specified)
+3. **Replaces** all variations of `MyApp` with variations of your `<ProjectName>` (or current directory name):
    - `My_App` → `Your_Project`
    - `My App` → `Your Project`
    - `my-app` → `your-project`
