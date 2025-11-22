@@ -20,10 +20,10 @@ if (args.length < 1) {
   console.error('');
   console.error('Examples:');
   console.error('  npx create-net ls');
-  console.error('  npx create-net ls NetFrameworkTemplates');
-  console.error('  npx create-net nextjs MyProject');
-  console.error('  npx create-net NetFrameworkTemplates/web-netfx MyProject');
-  console.error('  npx create-net nextjs  (uses current directory name)');
+  console.error('  npx create-net ls <organization>');
+  console.error('  npx create-net <template> ProjectName');
+  console.error('  npx create-net <organization>/<template> ProjectName');
+  console.error('  npx create-net <template>  (uses current directory name)');
   process.exit(1);
 }
 
@@ -127,8 +127,7 @@ async function listTemplates(targetOrg) {
   } else {
     // List templates from default organizations
     organizations = [
-      { name: 'NetCoreTemplates', title: '.NET Core Templates' },
-      { name: 'NetFrameworkTemplates', title: '.NET Framework Templates' }
+      { name: 'NetCoreTemplates', title: '.NET Templates' },
     ];
   }
 
@@ -165,10 +164,10 @@ async function listTemplates(targetOrg) {
     console.log('  npx create-net <org>/<repo> [ProjectName]');
     console.log('  npx create-net ls [org]');
     console.log('\n\x1b[1mExamples:\x1b[0m');
-    console.log('  npx create-net ls                                    # List all templates');
-    console.log('  npx create-net ls NetFrameworkTemplates              # List specific org templates');
-    console.log('  npx create-net nextjs MyProject                      # Create from NetCoreTemplates');
-    console.log('  npx create-net NetFrameworkTemplates/web-netfx MyApp # Create from specific org');
+    console.log('  npx create-net ls                            # List all templates');
+    console.log('  npx create-net ls <org>                      # List specific org templates');
+    console.log('  npx create-net <template> ProjectName        # Create from NetCoreTemplates');
+    console.log('  npx create-net <org>/<template> ProjectName  # Create from specific org');
 
   } catch (err) {
     console.error('Error listing templates:', err.message);
