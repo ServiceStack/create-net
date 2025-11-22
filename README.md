@@ -5,12 +5,38 @@ Create .NET and other projects from NetCoreTemplates GitHub repositories.
 ## Usage
 
 ```bash
+npx create-net <repo|ls> [ProjectName]
+```
+
+### Commands
+
+**List available templates:**
+```bash
+npx create-net ls [org]
+```
+
+**Create a project:**
+```bash
 npx create-net <repo> [ProjectName]
 ```
 
 If `ProjectName` is not specified, the script will use the current directory name and extract the template into the current directory (which must be empty).
 
 ### Examples
+
+**List all available templates:**
+
+```bash
+npx create-net ls
+```
+
+Shows all templates from NetCoreTemplates and NetFrameworkTemplates organizations.
+
+**List templates from a specific organization:**
+
+```bash
+npx create-net ls NetFrameworkTemplates
+```
 
 **Create a project in a new directory:**
 
