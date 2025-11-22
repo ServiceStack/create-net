@@ -3,7 +3,7 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const AdmZip = require('adm-zip');
 
 // Parse command line arguments
@@ -312,13 +312,17 @@ function runNpmInstall(dirPath) {
   // Check if current directory has package.json
   if (items.includes('package.json')) {
     console.log(`Running npm install in ${dirPath}...`);
-    try {
-      execSync('npm install', {
-        cwd: dirPath,
-        stdio: 'inherit'
-      });
-    } catch (err) {
-      console.error(`Warning: npm install failed in ${dirPath}`);
+    // Use spawnSync instead of execSync to have better control over exit codes
+    // npm returns exit code 1 for vulnerabilities, which shouldn't fail the script
+    const result = spawnSync('npm', ['install'], {
+      cwd: dirPath,
+      stdio: 'inherit',
+      shell: true
+    });
+
+    // Only warn on actual failures (exit codes > 1), not on vulnerabilities (exit code 1)
+    if (result.status !== null && result.status > 1) {
+      console.error(`Warning: npm install failed in ${dirPath} with exit code ${result.status}`);
     }
   }
 
