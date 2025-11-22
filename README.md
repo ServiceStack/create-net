@@ -57,6 +57,35 @@ This downloads from: `https://github.com/NetFrameworkTemplates/web-netfx`
 
 - Node.js >= 14.0.0
 
+## Testing
+
+Two test scripts are provided to verify the functionality:
+
+### Automated Tests
+
+Run automated tests that verify all scenarios and clean up afterwards:
+
+```bash
+./test.sh
+```
+
+This tests:
+- Creating a project with repo name and ProjectName
+- Creating a project with organization/repo and ProjectName
+- Creating a project without ProjectName (current directory)
+- Error handling for existing directories
+- Error handling for non-empty directories
+
+### Manual Tests
+
+Run manual tests that leave the results for inspection:
+
+```bash
+./test-manual.sh
+```
+
+This creates test projects in `test-manual/` for manual verification. Clean up with `rm -rf test-manual/` when done.
+
 ## Publishing
 
 To publish this package to npm:

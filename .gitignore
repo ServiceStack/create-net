@@ -3,3 +3,5 @@ node_modules/
 .DS_Store
 temp-download.zip
 temp-extract/
+test-projects/
+test-manual/
