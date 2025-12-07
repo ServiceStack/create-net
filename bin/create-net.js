@@ -146,6 +146,7 @@ async function listTemplates(targetOrg) {
           const maxNameLength = Math.max(...repos.map(r => r.name.length));
           const padding = Math.max(maxNameLength + 2, 25);
 
+          repos.sort((a, b) => a.name.localeCompare(b.name));
           repos.forEach(repo => {
             const name = repo.name.padEnd(padding);
             const description = repo.description || 'No description available';
